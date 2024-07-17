@@ -4,9 +4,26 @@
     </head>
     <body>
         <div>
-            The below frame is cross origin, linked to `https://blakelee-pendo.github.io/third-party-cookie-frame.html`.
+            The below frame(s) are cross origin, linked to `https://blakelee-pendo.github.io/third-party-cookie-frame.html`.
         </div>
+        <button id="add-second-frame">
+            Add a second frame after requesting storage access in the first frame
+        </button>
         <a href="https://blakelee-pendo.github.io/third-party-cookie-popup.html" target="_blank">Click to open a new top-level window to `blakelee-pendo.github.io`</a><br>
-        <iframe src="https://blakelee-pendo.github.io/third-party-cookie-frame.html" style="height: 400px; width: 600px;margin-top: 20px"></iframe>
+        <div id="iframe-container" style="display: flex; margin-top: 20px;">
+            <div>
+                <div>iframe A</div>
+                <iframe src="https://blakelee-pendo.github.io/third-party-cookie-frame.html" style="height: 400px; width: 600px;"></iframe>
+            </div>
+        </div>
+        <script>
+            document.getElementById('add-second-frame').addEventListener('click', () => {
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://blakelee-pendo.github.io/third-party-cookie-frame.html';
+                iframe.style.height = '400px';
+                iframe.style.width = '600px';
+                document.getElementById('iframe-container').appendChild(iframe);
+            });
+        </script>
     </body>
 </html>
