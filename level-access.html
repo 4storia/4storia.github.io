@@ -11,6 +11,7 @@
     <a href="https://4storia.github.io/dev.html" target="_blank" id="new-tab-link">Open a new tab babyyyyyyyyyy</a>
     <input type="password" class="manual-password" style="width: 200px">
     <button id="random-button">random button you can tag</button>
+    <button id="another-button">push me for a track event</button>
     <table>
         <tr>
             <th>col 1</th>
@@ -24,6 +25,11 @@
         </tr>
     </table>
     <script id="pendo-snippet">
+        const trackEventButton = document.querySelector('#another-button');
+        trackEventButton.addEventListener('click', () => {
+            window.pendo.track('some-track-event', { randomVal: math.random() });
+        });
+
         const shouldAddAgent = !window.location.search.includes('no-agent');
         if (shouldAddAgent) {
             initializeSnippetOnTargetWindow(window);
