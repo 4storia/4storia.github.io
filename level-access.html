@@ -27,7 +27,7 @@
     <script id="pendo-snippet">
         const trackEventButton = document.querySelector('#another-button');
         trackEventButton.addEventListener('click', () => {
-            window.pendo.track('some-track-event', { randomVal: math.random() });
+            window.pendo.track('some-track-event', { randomVal: Math.random() });
         });
 
         const shouldAddAgent = !window.location.search.includes('no-agent');
