@@ -1,144 +1,236 @@
 <html>
     <head>
-        <script>
-            (function (apiKey) {
-                (function (p, e, n, d, o) {
-                    var v, w, x, y, z; o = p[d] = p[d] || {}; o._q = o._q || [];
-                    v = ['initialize', 'identify', 'updateOptions', 'pageLoad', 'track']; for (w = 0, x = v.length; w < x; ++w)(function (m) {
-                        o[m] = o[m] || function () {o._q[m === v[0] ? 'unshift' : 'push']([m].concat([].slice.call(arguments, 0)));};
-                    })(v[w]);
-                    y = e.createElement(n); y.async = !0; y.src = 'https://cdn.pendo-calypso.pendo-dev.com/agent/static/' + apiKey + '/pendo.js';
-                    z = e.getElementsByTagName(n)[0]; z.parentNode.insertBefore(y, z);
-                })(window, document, 'script', 'pendo');
-
-                // This function creates visitors and accounts in Pendo
-                // You will need to replace <visitor-id-goes-here> and <account-id-goes-here> with values you use in your app
-                // Please use Strings, Numbers, or Bools for value types.
-                pendo.initialize({
-                    visitor: {
-                        id: 'test-visitor'
-                    },
-                    account: {
-                        id: 'some-account'
-                    }
-                });
-        })('76d6d6cb-ee74-4a79-4f90-55ddad050688');
-        </script>
         <style>
             body {
-                padding: 0px;
+                font-size: 18px;
                 margin: 0px;
-                border: 3px solid lightcoral;
-                display: flex;
-                flex: 1;
             }
 
-            .big__container {
-                display: flex;
-                flex: 1;
-                flex-direction: column;
-            }
-
-            .big__nav-list {
-                display: flex;
+            ul {
                 list-style-type: none;
+                padding-left: 0px;
+            }
+
+            #nav-bar {
+                height: 50px;
+                width: 100%;
+                background-color: #CCC;
+                display: flex;
+                align-items: center;
                 padding: 10px;
-                border-bottom: 1px solid gray;
-                margin: 0;
+                box-sizing: border-box;
+                margin-bottom: 10px;
             }
 
-            .big__nav-list li {
-                margin-right: 100px;
+            #header {
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                font-size: 18px;
+                height: 40px;
+                background-color: #CCC;
             }
 
-            #big__app-container {
-                flex: 1;
+            #app-content {
+                margin: 0px;
+                padding: 0px;
+            }
+
+            #content {
+                padding: 10px;
+                height: calc(100vh - 60px);
+            }
+
+            #left-nav-bar {
+                width: 200px;
+                height: calc(100vh - 60px);
+                background-color: #CCC;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+            #second-row {
                 display: flex;
             }
 
-            .big__inner-app {
-                background-color: lightcoral;
-                flex-grow: 1;
+            .nav-section {
+                padding-bottom: 10px;
             }
 
-            .little__inner-app {
-                background-color: aquamarine;
-                flex-grow: 1;
+            .nav-item {
+                cursor: pointer;
+                margin-left: 10px;
+            }
+
+            .nav-item:hover {
+                text-decoration: underline;
+            }
+
+            #app-content {
+                margin-left: 10px;
+                box-sizing: border-box;
             }
         </style>
     </head>
     <body>
-        <div class="big__container">
-            <nav class="big__nav-bar">
-                <ul class="big__nav-list">
-                    <li class="big__nav-item-1">
-                        <button id="big__show-big-app">
-                            Show big app
-                        </button>
-                    </li>
-                    <li class="big__nav-item-2">
-                        <button id="big__show-little-app">
-                            Show little app
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-            <div id="big__app-container" />
+        <div id="shell-container">
+            <div id="header">
+                The app header
+            </div>
+            <div id="second-row">
+                <div id="left-nav-bar">
+                    <div class="title">Left Nav</div>
+                    <ul>
+                        <li class="nav-section">
+                            <a href="#products">
+                                Products
+                            </a>
+                        </li>
+                        <li class="nav-section">
+                            <a href="#services"">
+                                Services
+                            </a>
+                        </li>
+                        <li class="nav-section">
+                            <a href="#support">
+                                Support
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="app-content"></div>
+            </div>
         </div>
+
+        <template id="app-template">
+            <div class="heading">
+                You're currently viewing {{ topLevelApp }}
+            </div>
+            <div>
+                <button class="some-button-1">Button 1</button>
+                <button class="some-button-2">Button 2</button>
+                <button class="some-button-3">Button 3</button>
+            </div>
+        </template>
+
         <script>
-            function injectBigAppContent() {
-                const container = document.getElementById('big__app-container');
-                container.innerHTML = '';
+            const templateStringRegex = /{{\s*([a-zA-Z0-9_]+)\s*}}/g;
+            const routeInternals = {};
+            const visitorId = window.location.search.split('visitorId=')[1] || 'test-visitor';
+            let currentApp;
 
-                const bigAppContent = document.createElement('div');
-                bigAppContent.classList.add('big__inner-app');
-                bigAppContent.innerHTML = `
-                    <div class="big__inner-app__title">
-                        I'm still part of the big app!
-                    </div>
-                    <div class="big__inner-app__content">
-                        I have some content and some buttons, but it all should still roll up to the big app.<br>
-                        <button id="big__random_button_1">
-                            Random button #1
-                        </button>
-                        <button id="big__random_button_2">
-                            Random button #2
-                        </button>
-                    </div>
-                `;
+            const apps = {
+                'App-1': {
+                    name: 'Products',
+                    regex: /^products/,
+                    apiKey: 'ccb72ea6-f28c-431d-8e47-cb0de67cef4b'
+                },
+                'App-2': {
+                    name: 'Services',
+                    regex: /^services/,
+                    apiKey: '158a2802-9f34-412e-a70e-37b4f52af77a'
+                },
+                'App-3': {
+                    name: 'Support',
+                    regex: /^support/,
+                    apiKey: 'a681e018-f0b3-4763-966b-08a1b5439a17'
+                },
+            };
 
-                container.appendChild(bigAppContent);
+            const fallbackApp = {
+                name: 'Home (Fallback)',
+                apiKey: '90ec9a8b-a535-4872-9779-1bd7fa168587',
             }
 
-            function injectLittleAppContent() {
-                const container = document.getElementById('big__app-container');
-                container.innerHTML = '';
+            initializePendo(determineCurrentApp());
+            renderRoute();
 
-                const littleAppContent = document.createElement('div');
-                littleAppContent.classList.add('little__inner-app');
-                littleAppContent.setAttribute('data-pendo-api-key', '07ee5158-9734-46a5-4642-39e833a0979d')
-                littleAppContent.innerHTML = `
-                    <div class="little__inner-app__title">
-                        I'm a lil tiny app
-                    </div>
-                    <div class="little__inner-app__content">
-                        I have some content and some buttons, and none of it should roll up to the big app.<br>
-                        <button id="little__random_button_3">
-                            Random button #3
-                        </button>
-                        <button id="little__random_button_4">
-                            Random button #4
-                        </button>
-                    </div>
-                `;
+            window.addEventListener('hashchange', () => {
+                initializePendo(determineCurrentApp());
+                renderRoute();
+            });
 
-                container.appendChild(littleAppContent);
+            function determineCurrentApp() {
+                const appKey = Object.keys(apps).find(appName => {
+                    const app = apps[appName];
+
+                    return app.regex.test(window.location.hash.replace(/^#\/?/, ''));
+                });
+
+                const app = apps[appKey];
+
+                console.log("?", app)
+
+                if(!app) {
+                    console.warn('Fell back to fallback app :(')
+                    return fallbackApp
+                }
+
+                return app;
             }
 
-            injectBigAppContent();
+            function initializePendo(app) {
+                if(currentApp === app) return;
 
-            document.getElementById('big__show-big-app').addEventListener('click', injectBigAppContent);
-            document.getElementById('big__show-little-app').addEventListener('click', injectLittleAppContent);
+                currentApp = app;
+                const apiKey = app.apiKey;
+
+                const accountId = 'some-account'
+
+                const options = {
+                    visitor: {
+                        id: visitorId
+                    },
+                    account: {
+                        id: accountId
+                    }
+                };
+
+                console.log("switching to api key", apiKey);
+
+                return new Promise(function (resolve) {
+                    const id = `pendo-agent-${apiKey}`;
+                    if (window.pendo && window.pendo.teardown) {
+                        window.pendo.teardown();
+                        delete window.pendo;
+                    }
+
+                    let script = document.getElementById(id);
+                    if (script) {
+                        window.pendo = window[id];
+                        window.pendo.initialize(options);
+                        resolve();
+                    } else {
+                        script = document.createElement('script');
+                        script.id = id;
+                        script.onload = function () {
+                            window[id] = window.pendo;
+                            window.pendo.initialize(options);
+                            resolve();
+                        };
+                        script.src = 'https://cdn.pendo-link.pendo-dev.com/agent/static/' + apiKey + '/pendo.js';
+                        document.head.appendChild(script);
+                    }
+                });
+            }
+
+            function renderRoute() {
+                const template = document.getElementById('app-template');
+                const clone = template.content.cloneNode(true);
+
+                const wrapper = document.createElement('div');
+                wrapper.id = 'content'
+                wrapper.appendChild(clone);
+
+                const context = { topLevelApp: currentApp.name };
+                wrapper.innerHTML = wrapper.innerHTML.replace(templateStringRegex, (_, key) => context[key] ?? '');
+
+                const appContent = document.getElementById('app-content');
+                appContent.innerHTML = '';
+
+                console.log("?", wrapper)
+                appContent.appendChild(wrapper);
+            }
         </script>
     </body>
 </html>
