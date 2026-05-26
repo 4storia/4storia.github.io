@@ -29,6 +29,7 @@
                 font-size: 18px;
                 height: 40px;
                 background-color: #CCC;
+                cursor: pointer;
             }
 
             #app-content {
@@ -144,6 +145,11 @@
                 name: 'Home (Fallback)',
                 apiKey: '90ec9a8b-a535-4872-9779-1bd7fa168587',
             }
+
+            const header = document.getElementById('header');
+            header.addEventListener('click', () => {
+                window.location.hash = '';
+            });
 
             initializePendo(determineCurrentApp());
             renderRoute();
