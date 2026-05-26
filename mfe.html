@@ -107,9 +107,9 @@
                 You're currently viewing {{ topLevelApp }}
             </div>
             <div>
-                <button class="some-button-1">Button 1</button>
-                <button class="some-button-2">Button 2</button>
-                <button class="some-button-3">Button 3</button>
+                <button class="some-button-1 {{ classPrefix }}">Button 1</button>
+                <button class="some-button-2 {{ classPrefix }}">Button 2</button>
+                <button class="some-button-3 {{ classPrefix }}">Button 3</button>
             </div>
         </template>
 
@@ -122,16 +122,19 @@
             const apps = {
                 'App-1': {
                     name: 'Products',
+                    classPrefix: 'app-1',
                     regex: /^products/,
                     apiKey: 'ccb72ea6-f28c-431d-8e47-cb0de67cef4b'
                 },
                 'App-2': {
                     name: 'Services',
+                    classPrefix: 'app-2',
                     regex: /^services/,
                     apiKey: '158a2802-9f34-412e-a70e-37b4f52af77a'
                 },
                 'App-3': {
                     name: 'Support',
+                    classPrefix: 'app-3',
                     regex: /^support/,
                     apiKey: 'a681e018-f0b3-4763-966b-08a1b5439a17'
                 },
@@ -222,7 +225,7 @@
                 wrapper.id = 'content'
                 wrapper.appendChild(clone);
 
-                const context = { topLevelApp: currentApp.name };
+                const context = { topLevelApp: currentApp.name, classPrefix: currentApp.classPrefix };
                 wrapper.innerHTML = wrapper.innerHTML.replace(templateStringRegex, (_, key) => context[key] ?? '');
 
                 const appContent = document.getElementById('app-content');
