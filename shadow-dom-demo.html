@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nested Shadow DOM Examples</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    line-height: 1.5;
+  }
+  section {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+  h2 { margin-top: 0; }
+  code { background: #f0f0f0; padding: 0 4px; border-radius: 3px; }
+  .light-dom-box {
+    border: 2px dashed #999;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Nested Shadow DOM Examples</h1>
+<p>Each section below attaches shadow roots to custom elements, with some sections nesting shadow roots several layers deep.</p>
+
+<!-- ============================================================ -->
+<!-- Example 1: single shadow root -->
+<!-- ============================================================ -->
+<section>
+  <h2>1. Single shadow root (open mode)</h2>
+  <div class="light-dom-box">
+    <shadow-single></shadow-single>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Example 2: two levels of nested shadow roots -->
+<!-- ============================================================ -->
+<section>
+  <h2>2. Two levels of nested shadow roots</h2>
+  <div class="light-dom-box">
+    <shadow-outer></shadow-outer>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Example 3: four levels deep, mixing open + closed roots -->
+<!-- ============================================================ -->
+<section>
+  <h2>3. Four levels deep (mix of <code>open</code> and <code>closed</code> mode)</h2>
+  <div class="light-dom-box">
+    <shadow-level-1></shadow-level-1>
+  </div>
+  <p><em>Note: closed shadow roots are still walkable in the console via
+  <code>getComponentByPath</code>-style helpers stored on the element by this demo (for teaching purposes only — normally
+  <code>element.shadowRoot</code> is <code>null</code> for closed roots).</em></p>
+</section>
+
+<!-- ============================================================ -->
+<!-- Example 4: slotted light DOM content passed through nested hosts -->
+<!-- ============================================================ -->
+<section>
+  <h2>4. Slotted content flowing through nested shadow roots</h2>
+  <div class="light-dom-box">
+    <shadow-card>
+      <span slot="title">Hello from the light DOM</span>
+      <p>This paragraph is light DOM content, projected into a slot several shadow layers deep.</p>
+    </shadow-card>
+  </div>
+</section>
+
+<script>
+// ---------------------------------------------------------------
+// 1. Single shadow root
+// ---------------------------------------------------------------
+customElements.define('shadow-single', class extends HTMLElement {
+  connectedCallback() {
+    const root = this.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style>
+        div { background: #e8f4ff; padding: 0.75rem; border-radius: 6px; }
+      </style>
+      <div>I live inside a single shadow root. <code>this.shadowRoot</code> points here.</div>
+    `;
+  }
+});
+
+// ---------------------------------------------------------------
+// 2. Two nested shadow roots: <shadow-outer> contains <shadow-inner>,
+//    and <shadow-inner>'s template also has its own shadow root.
+// ---------------------------------------------------------------
+customElements.define('shadow-outer', class extends HTMLElement {
+  connectedCallback() {
+    const root = this.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style> .outer { background: #fff3cd; padding: 0.75rem; border-radius: 6px; } </style>
+      <div class="outer">
+        Outer shadow root (depth 1)
+        <shadow-inner></shadow-inner>
+      </div>
+    `;
+  }
+});
+
+customElements.define('shadow-inner', class extends HTMLElement {
+  connectedCallback() {
+    const root = this.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style> .inner { background: #d4edda; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; } </style>
+      <div class="inner">Inner shadow root (depth 2) — nested inside shadow-outer's shadow root.</div>
+    `;
+  }
+});
+
+// ---------------------------------------------------------------
+// 3. Four levels deep, alternating open/closed shadow roots.
+//    Closed roots are stashed on a WeakMap purely so this demo
+//    can still render/inspect them for teaching purposes.
+// ---------------------------------------------------------------
+const closedRoots = new WeakMap();
+
+function defineLevel(tag, nextTag, mode, label, color) {
+  customElements.define(tag, class extends HTMLElement {
+    connectedCallback() {
+      const root = this.attachShadow({ mode });
+      if (mode === 'closed') closedRoots.set(this, root);
+      const child = nextTag ? `<${nextTag}></${nextTag}>` : '';
+      root.innerHTML = `
+        <style>
+          .level {
+            background: ${color};
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin: ${nextTag ? '0 0 0 0' : '0'};
+          }
+        </style>
+        <div class="level">
+          ${label} (mode: <code>${mode}</code>)
+          ${child}
+        </div>
+      `;
+    }
+  });
+}
+
+defineLevel('shadow-level-1', 'shadow-level-2', 'open',   'Level 1', '#f8d7da');
+defineLevel('shadow-level-2', 'shadow-level-3', 'closed', 'Level 2', '#d1ecf1');
+defineLevel('shadow-level-3', 'shadow-level-4', 'open',   'Level 3', '#e2e3e5');
+defineLevel('shadow-level-4', null,             'closed', 'Level 4 (deepest)', '#fefefe');
+
+// ---------------------------------------------------------------
+// 4. Slotted content projected through nested shadow roots.
+//    <shadow-card> has a shadow root containing <shadow-frame>,
+//    and a <slot> is forwarded from the outer host down into
+//    the inner shadow root via nested <slot> elements.
+// ---------------------------------------------------------------
+customElements.define('shadow-card', class extends HTMLElement {
+  connectedCallback() {
+    const root = this.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style> .card { border: 1px solid #ccc; border-radius: 6px; padding: 0.5rem; } </style>
+      <div class="card">
+        <shadow-frame>
+          <slot name="title" slot="frame-title"></slot>
+          <slot></slot>
+        </shadow-frame>
+      </div>
+    `;
+  }
+});
+
+customElements.define('shadow-frame', class extends HTMLElement {
+  connectedCallback() {
+    const root = this.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style>
+        .frame-title { font-weight: bold; display: block; margin-bottom: 0.5rem; }
+        .frame-body { background: #f6f6ff; padding: 0.5rem; border-radius: 4px; }
+      </style>
+      <div class="frame-title"><slot name="frame-title"></slot></div>
+      <div class="frame-body"><slot></slot></div>
+    `;
+  }
+});
+</script>
+
+</body>
+</html>
